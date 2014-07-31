@@ -27,8 +27,20 @@ namespace EventStoreService
                 
                 var process = new Process {StartInfo = info, EnableRaisingEvents = true};
 
-                DataReceivedEventHandler outputHandler = (s, e) => File.AppendAllLines("output.log", e.Data.Split(Environment.NewLine.ToCharArray()));
-                DataReceivedEventHandler errorHandler = (s, e) => File.AppendAllLines("error.log", e.Data.Split(Environment.NewLine.ToCharArray()));
+                DataReceivedEventHandler outputHandler = (s, e) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(e.Data))
+                    {
+                        File.AppendAllLines("output.log", e.Data.Split(Environment.NewLine.ToCharArray()));
+                    }
+                };
+                DataReceivedEventHandler errorHandler = (s, e) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(e.Data))
+                    {
+                        File.AppendAllLines("error.log", e.Data.Split(Environment.NewLine.ToCharArray()));
+                    }
+                };
 
                 process.ErrorDataReceived += errorHandler;
                 process.OutputDataReceived += outputHandler;

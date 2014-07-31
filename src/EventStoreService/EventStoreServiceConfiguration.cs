@@ -49,6 +49,12 @@ namespace EventStoreService
         }
     }
 
+    public enum RunProjectionsOptions {
+        NONE,
+        SYSTEM,
+        ALL
+    }
+
     public class ServiceInstance : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true)]
@@ -101,18 +107,10 @@ namespace EventStoreService
             set { this["cachedChunkCount"] = value; }
         }
 
-        [ConfigurationProperty("runProjections", IsRequired = false)]
-        public bool RunProjections
+        [ConfigurationProperty("runProjections", IsRequired = false, DefaultValue=RunProjectionsOptions.ALL)]
+        public RunProjectionsOptions RunProjections
         {
-            get
-            {
-                object run = this["runProjections"];
-                if (run != null)
-                {
-                    return (bool) run;
-                }
-                return false;
-            }
+            get { return (RunProjectionsOptions)this["runProjections"]; }
             set { this["runProjections"] = value; }
         }
 
@@ -157,11 +155,7 @@ namespace EventStoreService
             sb.AppendFormat("--http-port {0} ", HttpPort);
             sb.AppendFormat("--db {0} ", DbPath);
             sb.AppendFormat("--c {0}", CachedChunkCount);
-            
-            if (RunProjections)
-            {
-                sb.Append(" --run-projections");
-            }
+            sb.AppendFormat(" --run-projections {0}", RunProjections.ToString());
 
             if (SkipDbVerify)
             {
